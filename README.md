@@ -1,5 +1,5 @@
-# docker-ghost-template
-Docker composition of Ghost blog with Node, NGINX proxy with SSL termination, database, etc.
+# docker-ghost-nodebb-template
+Docker composition of Ghost blog and NodeBB forum with Node, NGINX proxy with SSL termination, Redis, etc.
 
 ## Software Used
 
@@ -10,18 +10,18 @@ Docker composition of Ghost blog with Node, NGINX proxy with SSL termination, da
 ## The Stack
 
 - Node.js
-    - Ghost blog software
-    - Added Node module for supporting uploads to S3 so images are not saved to filesystem: https://www.npmjs.com/package/ghost-s3-service
+    - Ghost blog software with S3 storage https://www.npmjs.com/package/ghost-s3-service
+    - Nodebb forum software
 - NGINX
     - proxying port 80 calls to the Node web server on port 2368
-- MySQL database
-    - using UTFMB4 encoding (MySQL's UTF8 implementation was limited. UTFMB4 includes Emoji)
+- Redis database
 
 ## Inherited Image Versions
 
 - Ghost: 0.11.0
+- NodeBB: xxx
 - NGINX: 1.10
-- MySQL: 5.7.15
+- Redis: xxx
 
 ## What You'll Need
 
@@ -67,15 +67,6 @@ Ghost will create these directories:
 - themes - You can add more themes here. Default is Casper theme.
 - index.js - It's a symlink. Don't edit or remove it.
 
-## How to back up your database
-
-0. Run "docker-compose ps" to get a list of running containers.
-0. Locate the name of the mysql container.
-0. Run this command to get the container's internal IP: docker inspect --format='{{.NetworkSettings.IPAddress}}' THAT_CONTAINER-NAME
-0. In your favorite database GUI tool (like Navicat or DataGrip), create a new connection via SSH tunnel to the host machine
-0. Use the internal IP address and database user and password to connect to database once SSH tunnel is established to host.
-0. You'll have access to the data so you can view data and run backups.
-
 ## Theme
 
 The default theme is Casper.  I have a minor fork of this theme here: https://github.com/jwasham/casper-startup-next-door
@@ -118,11 +109,3 @@ Docker containers are meant to be disposable, so you'll need to export your Ghos
 
 That's it!
 
-## MySQL memory
-
-I'm running this on an EC2 t2.micro at 1GB RAM. I tried to limit MySQL's memory limit because it was taking up, what in my opinion, was too much.
-
-Adding this to the mysql: block in docker-compose.yml will limit memory:
-> mem_limit: 384m
-
-I tried 256 and 384. Both caused issues with MySQL. Instead of continuing to experiment, or trying to tune MySQL in a container (no thanks), I just removed the limit.
